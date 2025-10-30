@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ο Αρχαιολόγος & η Ιστορία</title>
+    <!-- Φόρτωση Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Φόρτωση Font Awesome για εικονίδια -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Προσαρμοσμένα στυλ για παιδική αισθητική */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="%23f0f4f8"/><path d="M0 0L100 100M100 0L0 100" stroke="%23e2e8f0" stroke-width="1"/></svg>');
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .quiz-container {
+            max-width: 95%;
+            margin: 0 auto;
+            min-height: 90vh;
+        }
+        .quiz-card {
+            background-color: #ffffff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .question-box {
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .answer-button {
+            transition: transform 0.1s, box-shadow 0.1s, background-color 0.3s;
+            cursor: pointer;
+            border: 3px solid transparent;
+        }
+        .answer-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+        }
+        .disabled {
+            pointer-events: none;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .bounce {
+            animation: bounce 0.5s;
+        }
+        
+        /* Προσαρμογές για landscape orientation */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .quiz-container {
+                min-height: 95vh;
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+            }
+            .quiz-card {
+                padding: 1rem !important;
+            }
+            header {
+                margin-bottom: 0.5rem !important;
+            }
+            header h1 {
+                font-size: 1.75rem !important;
+            }
+            .question-box {
+                min-height: 70px;
+                font-size: 1.25rem !important;
+                margin-bottom: 0.5rem !important;
+                padding: 0.5rem !important;
+            }
+            .answer-button {
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+                font-size: 0.9rem !important;
+            }
+            #next-button {
+                margin-top: 0.5rem !important;
+                padding: 0.5rem !important;
+                font-size: 1rem !important;
+            }
+            .score-display {
+                font-size: 1rem !important;
+            }
+        }
+        
+        /* Προσαρμογές για μικρές οθόνες σε portrait */
+        @media (max-width: 480px) and (orientation: portrait) {
+            .quiz-container {
+                max-width: 98%;
+            }
+            .quiz-card {
+                padding: 0.75rem !important;
+            }
+            header h1 {
+                font-size: 1.75rem !important;
+            }
+            .question-box {
+                font-size: 1.25rem !important;
+                min-height: 80px;
+                padding: 0.75rem !important;
+            }
+            .answer-button {
+                font-size: 0.9rem !important;
+                padding: 0.75rem !important;
+            }
+        }
+        
+        /* Προσαρμογές για tablets */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .quiz-container {
+                max-width: 85%;
+            }
+        }
+        
+        /* Προσαρμογές για μεγάλες οθόνες */
+        @media (min-width: 1200px) {
+            .quiz-container {
+                max-width: 70%;
+            }
+        }
+    </style>
+</head>
+<body class="p-2 md:p-4 lg:p-8">
+
+    <div id="quiz-app" class="quiz-container flex flex-col items-center justify-center py-2 md:py-4 lg:py-10">
+
+        <!-- Τίτλος & Εισαγωγή -->
+        <header class="text-center mb-4 md:mb-6 lg:mb-8">
+            <h1 class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-blue-600 mb-1 md:mb-2">
+                <i class="fas fa-book-open text-yellow-500 mr-2 md:mr-3"></i>
+                Το Παιχνίδι του Αρχαιολόγου
+            </h1>
+        </header>
+
+        <!-- Κεντρική Κάρτα Παιχνιδιού -->
+        <div id="quiz-card" class="quiz-card w-full md:w-4/5 lg:w-3/5 p-4 md:p-6 lg:p-10 rounded-2xl lg:rounded-3xl">
+
+            <!-- Οθόνη Εισαγωγής -->
+            <div id="intro-screen" class="text-center">
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <i class="fas fa-shovel text-4xl md:text-5xl lg:text-6xl text-yellow-600 mb-2 md:mb-4"></i>
+                    <h2 class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-2 md:mb-4">Καλώς ήρθες, νεαρέ αρχαιολόγε!</h2>
+                    <p class="text-sm md:text-base lg:text-lg text-gray-600 mb-4 md:mb-6">Σε αυτό το παιχνίδι θα μάθεις πολλά για τη δουλειά του αρχαιολόγου και την ιστορία. Ετοιμάσου να απαντήσεις σε 8 ερωτήσεις!</p>
+                </div>
+                <button onclick="startGame()" class="py-3 md:py-4 px-6 md:px-8 text-base md:text-xl font-bold rounded-xl text-white bg-blue-500 hover:bg-blue-600 shadow-lg transition duration-300">
+                    Ξεκίνα το Παιχνίδι <i class="fas fa-play ml-1 md:ml-2"></i>
+                </button>
+            </div>
+
+            <!-- Οθόνη Ερωτήσεων -->
+            <div id="quiz-screen" class="hidden">
+                <div class="flex justify-between items-center mb-4 md:mb-6 text-base md:text-xl font-semibold text-gray-600 score-display">
+                    <p>Βαθμολογία: <span id="score" class="text-green-600">0</span></p>
+                    <p>Ερώτηση <span id="current-question-number">1</span> / <span id="total-questions"></span></p>
+                </div>
+
+                <!-- Κουτί Ερώτησης -->
+                <div id="question-box" class="question-box bg-blue-100 text-blue-800 text-lg md:text-2xl lg:text-3xl font-bold p-4 md:p-6 rounded-xl lg:rounded-2xl mb-4 md:mb-6 lg:mb-8 border-4 border-blue-400">
+                    <!-- Ερώτηση θα φορτωθεί εδώ -->
+                </div>
+
+                <!-- Κουτιά Απαντήσεων -->
+                <div id="answers-container" class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 lg:gap-4">
+                    <!-- Κουμπιά απαντήσεων θα φορτωθούν εδώ -->
+                </div>
+
+                <!-- Κουμπί Επόμενης Ερώτησης -->
+                <button id="next-button"
+                        class="mt-4 md:mt-6 lg:mt-8 w-full py-2 md:py-3 text-base md:text-xl font-bold rounded-xl text-white bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed hidden shadow-lg"
+                        onclick="nextQuestion()">
+                    Επόμενη Ερώτηση <i class="fas fa-arrow-right ml-1 md:ml-2"></i>
+                </button>
+            </div>
+
+            <!-- Οθόνη Αποτελεσμάτων -->
+            <div id="results-screen" class="text-center hidden">
+                <h2 class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-green-600 mb-2 md:mb-4">
+                    Τέλος Παιχνιδιού! <i class="fas fa-trophy ml-1 md:ml-2 text-yellow-500"></i>
+                </h2>
+                <p class="text-lg md:text-xl lg:text-2xl text-gray-700 mb-4 md:mb-6">Η τελική σου βαθμολογία είναι:</p>
+                <p class="text-4xl md:text-5xl lg:text-6xl font-black text-blue-600 mb-4 md:mb-6 lg:mb-8" id="final-score"></p>
+                <div id="result-message" class="mb-4 md:mb-6 lg:mb-8 text-base md:text-lg lg:text-xl text-gray-700"></div>
+                <button onclick="startGame()" class="py-3 md:py-4 px-6 md:px-8 text-base md:text-xl font-bold rounded-xl text-white bg-blue-500 hover:bg-blue-600 shadow-lg">
+                    Παίξε Ξανά <i class="fas fa-redo ml-1 md:ml-2"></i>
+                </button>
+            </div>
+
+            <!-- Κουτί Μηνυμάτων Ανατροφοδότησης -->
+            <div id="feedback-message" class="mt-4 md:mt-6 text-center text-lg md:text-xl lg:text-2xl font-bold hidden">
+                <!-- Μηνύματα ανατροφοδότησης (Σωστό/Λάθος) -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Δεδομένα Παιχνιδιού (Ερωτήσεις και Απαντήσεις) στα Ελληνικά
+        const quizData = [
+            {
+                question: "Τι κάνει ένας Αρχαιολόγος;",
+                icon: "fas fa-shovel",
+                answers: [
+                    { text: "Σκάβει το χώμα για να βρει παλιά αντικείμενα.", isCorrect: true, info: "Ο αρχαιολόγος σκάβει προσεκτικά για να βρει και να μελετήσει αντικείμενα από το παρελθόν." },
+                    { text: "Χτίζει καινούρια σπίτια.", isCorrect: false, info: "Αυτό είναι δουλειά του οικοδόμου." },
+                    { text: "Φτιάχνει νόστιμα φαγητά.", isCorrect: false, info: "Αυτό είναι δουλειά του μάγειρα ή του σεφ." },
+                    { text: "Διδάσκει στο σχολείο.", isCorrect: false, info: "Αυτό είναι δουλειά του δασκάλου." }
+                ]
+            },
+            {
+                question: "Τι ονομάζουμε 'Ιστορία';",
+                icon: "fas fa-clock",
+                answers: [
+                    { text: "Όλα τα σημαντικά πράγματα που έγιναν στο παρελθόν.", isCorrect: true, info: "Η Ιστορία μας λέει τις αληθινές ιστορίες των ανθρώπων που έζησαν πριν από εμάς." },
+                    { text: "Τις ιστορίες που λέμε το βράδυ.", isCorrect: false, info: "Αυτά είναι παραμύθια ή προσωπικές ιστορίες." },
+                    { text: "Τα μαθήματα που κάνουμε τώρα.", isCorrect: false, info: "Αυτά είναι οι σημερινές μας ασχολίες." },
+                    { text: "Τον καιρό που θα έχει αύριο.", isCorrect: false, info: "Αυτό είναι η πρόγνωση του καιρού!" }
+                ]
+            },
+            {
+                question: "Ποια εργαλεία χρησιμοποιεί συχνά ένας Αρχαιολόγος;",
+                icon: "fas fa-tools",
+                answers: [
+                    { text: "Φτυάρι, πινέλο και σκαλιστήρι.", isCorrect: true, info: "Το φτυάρι σκάβει, το σκαλιστήρι αφαιρεί χώμα και το πινέλο καθαρίζει τα ευρήματα!" },
+                    { text: "Κατσαβίδι και κλειδί.", isCorrect: false, info: "Αυτά είναι εργαλεία για μηχανικούς." },
+                    { text: "Ψαλίδι και κόλλα.", isCorrect: false, info: "Αυτά είναι εργαλεία για χειροτεχνίες." },
+                    { text: "Μπάλες και παιχνίδια.", isCorrect: false, info: "Αυτά είναι για το διάλειμμα!" }
+                ]
+            },
+            {
+                question: "Τι μαθαίνουμε από την Ιστορία;",
+                icon: "fas fa-lightbulb",
+                answers: [
+                    { text: "Πώς ζούσαν οι άνθρωποι πριν από εμάς.", isCorrect: true, info: "Μαθαίνουμε για τα σπίτια τους, τα φαγητά τους, τα ρούχα τους και τις ιδέες τους!" },
+                    { text: "Πώς να πετάμε στον ουρανό.", isCorrect: false, info: "Αυτό το μαθαίνουμε από την επιστήμη." },
+                    { text: "Πώς να φτιάχνουμε ρομπότ.", isCorrect: false, info: "Αυτό είναι η Ρομποτική." },
+                    { text: "Τις γλώσσες των ζώων.", isCorrect: false, info: "Κανείς δεν ξέρει όλες τις γλώσσες των ζώων!" }
+                ]
+            },
+            {
+                question: "Πώς ονομάζονται τα πολύ παλιά αντικείμενα που βρίσκει ο αρχαιολόγος;",
+                icon: "fas fa-gem",
+                answers: [
+                    { text: "Αρχαία ευρήματα ή αντικείμενα.", isCorrect: true, info: "Τα αρχαία ευρήματα είναι οι 'θησαυροί' της ιστορίας!" },
+                    { text: "Καινούρια παιχνίδια.", isCorrect: false, info: "Τα καινούρια παιχνίδια είναι φτιαγμένα τώρα." },
+                    { text: "Πέτρες του δρόμου.", isCorrect: false, info: "Μόνο αν είναι ξεχωριστές πέτρες από παλιά κτίρια." },
+                    { text: "Χαμένα κέρματα.", isCorrect: false, info: "Μπορεί να βρει και κέρματα, αλλά τα ονομάζουμε ευρήματα." }
+                ]
+            },
+            {
+                question: "Γιατί είναι σημαντική η δουλειά του Αρχαιολόγου;",
+                icon: "fas fa-heart",
+                answers: [
+                    { text: "Μας βοηθά να καταλάβουμε το παρελθόν μας.", isCorrect: true, info: "Μόνο αν καταλάβουμε το παρελθόν, μπορούμε να ζήσουμε καλύτερα στο παρόν και το μέλλον." },
+                    { text: "Γιατί φοράει ωραία ρούχα.", isCorrect: false, info: "Τα ρούχα δεν έχουν σημασία στη δουλειά του." },
+                    { text: "Γιατί βρίσκει χρυσό.", isCorrect: false, info: "Δεν βρίσκει πάντα χρυσό, αλλά βρίσκει κάτι πιο σημαντικό: Γνώση!" },
+                    { text: "Γιατί του αρέσει να σκάβει.", isCorrect: false, info: "Αν και του αρέσει, ο σκοπός είναι η γνώση." }
+                ]
+            },
+            {
+                question: "Τι σημαίνει 'ανασκαφή';",
+                icon: "fas fa-map-marked-alt",
+                answers: [
+                    { text: "Το σκάψιμο σε ένα μέρος για να βρεθούν παλιά πράγματα.", isCorrect: true, info: "Η ανασκαφή είναι η διαδικασία κατά την οποία οι αρχαιολόγοι φέρνουν στο φως τα αρχαία." },
+                    { text: "Το να κολυμπάμε στη θάλασσα.", isCorrect: false, info: "Αυτό είναι κολύμπι!" },
+                    { text: "Το να φτιάχνουμε έναν πύργο.", isCorrect: false, info: "Αυτό είναι κατασκευή." },
+                    { text: "Το να τρώμε το φαγητό μας.", isCorrect: false, info: "Αυτό είναι φαγητό!" }
+                ]
+            },
+            {
+                question: "Ποιο είναι ένα πολύ παλιό πράγμα που μπορεί να βρει ένας αρχαιολόγος;",
+                icon: "fas fa-landmark",
+                answers: [
+                    { text: "Ένα πήλινο αγγείο.", isCorrect: true, info: "Τα αγγεία είναι πολύ συχνά ευρήματα και μας δείχνουν πολλά για την καθημερινή ζωή." },
+                    { text: "Ένα κινητό τηλέφωνο.", isCorrect: false, info: "Τα κινητά είναι πολύ καινούρια." },
+                    { text: "Μια πλαστική φιάλη.", isCorrect: false, info: "Οι πλαστικές φιάλες είναι φτιαγμένες πρόσφατα." },
+                    { text: "Ένα καινούριο ποδήλατο.", isCorrect: false, info: "Αυτό δεν είναι αρχαίο!" }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // Στοιχεία DOM
+        const introScreen = document.getElementById('intro-screen');
+        const questionBox = document.getElementById('question-box');
+        const answersContainer = document.getElementById('answers-container');
+        const nextButton = document.getElementById('next-button');
+        const scoreDisplay = document.getElementById('score');
+        const totalQuestionsDisplay = document.getElementById('total-questions');
+        const currentQuestionNumberDisplay = document.getElementById('current-question-number');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const resultMessage = document.getElementById('result-message');
+
+        // Συνάρτηση για την έναρξη του παιχνιδιού
+        function startGame() {
+            // Ανακάτεμα των ερωτήσεων κάθε φορά που ξεκινά το παιχνίδι
+            shuffleArray(quizData);
+            quizData.forEach(q => shuffleArray(q.answers)); // Ανακάτεμα απαντήσεων
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreDisplay.textContent = score;
+            totalQuestionsDisplay.textContent = quizData.length;
+
+            introScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            resultsScreen.classList.add('hidden');
+            nextButton.classList.add('hidden');
+            feedbackMessage.classList.add('hidden');
+
+            showQuestion();
+        }
+
+        // Συνάρτηση για την εμφάνιση της επόμενης ερώτησης
+        function showQuestion() {
+            // Έλεγχος αν τελείωσαν οι ερωτήσεις
+            if (currentQuestionIndex >= quizData.length) {
+                showResults();
+                return;
+            }
+
+            // Ενημέρωση αριθμού ερώτησης
+            currentQuestionNumberDisplay.textContent = currentQuestionIndex + 1;
+            
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            // Εμφάνιση ερώτησης με εικονίδιο
+            questionBox.innerHTML = `<i class="${currentQuestion.icon} text-2xl md:text-3xl lg:text-4xl mr-2 md:mr-3 lg:mr-4"></i> ${currentQuestion.question}`;
+            
+            answersContainer.innerHTML = '';
+            nextButton.classList.add('hidden');
+            feedbackMessage.classList.add('hidden');
+
+            // Δημιουργία κουμπιών απάντησης
+            currentQuestion.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.textContent = answer.text;
+                button.classList.add('answer-button', 'w-full', 'py-2', 'md:py-3', 'lg:py-4', 'px-3', 'md:px-4', 'text-sm', 'md:text-base', 'lg:text-lg', 'font-semibold', 'rounded-lg', 'md:rounded-xl', 'text-gray-800', 'bg-white', 'border-2', 'md:border-3', 'lg:border-4', 'border-blue-300', 'shadow-md', 'hover:bg-blue-50');
+                button.setAttribute('data-index', index);
+                button.onclick = () => selectAnswer(button, answer.isCorrect, answer.info);
+                answersContainer.appendChild(button);
+            });
+        }
+
+        // Συνάρτηση για την επιλογή απάντησης
+        function selectAnswer(selectedButton, isCorrect, info) {
+            // Απενεργοποίηση όλων των κουμπιών
+            Array.from(answersContainer.children).forEach(button => {
+                button.classList.add('disabled');
+            });
+
+            // Εμφάνιση feedback
+            feedbackMessage.classList.remove('hidden');
+
+            if (isCorrect) {
+                // Σωστή απάντηση
+                score++;
+                scoreDisplay.textContent = score;
+                selectedButton.classList.add('correct', 'border-green-600', 'bg-green-100');
+                feedbackMessage.classList.add('text-green-600');
+                feedbackMessage.classList.remove('text-red-600');
+                feedbackMessage.innerHTML = `<i class="far fa-smile-beam"></i> Μπράβο! Σωστή απάντηση! <span class="block mt-1 md:mt-2 text-xs md:text-sm lg:text-base font-normal text-gray-700">${info}</span>`;
+                
+                // Προσθήκη animation
+                scoreDisplay.classList.add('bounce');
+                setTimeout(() => {
+                    scoreDisplay.classList.remove('bounce');
+                }, 500);
+            } else {
+                // Λάθος απάντηση
+                selectedButton.classList.add('incorrect', 'border-red-600', 'bg-red-100');
+                feedbackMessage.classList.add('text-red-600');
+                feedbackMessage.classList.remove('text-green-600');
+                feedbackMessage.innerHTML = `<i class="far fa-sad-tear"></i> Λάθος! Μην ανησυχείς! <span class="block mt-1 md:mt-2 text-xs md:text-sm lg:text-base font-normal text-gray-700">Η σωστή απάντηση ήταν: ${info}</span>`;
+                
+                // Επισήμανση της σωστής απάντησης
+                const correctButton = Array.from(answersContainer.children).find(btn => 
+                    quizData[currentQuestionIndex].answers[btn.getAttribute('data-index')].isCorrect
+                );
+                if (correctButton) {
+                    correctButton.classList.add('correct', 'border-green-600', 'bg-green-100');
+                }
+            }
+
+            nextButton.classList.remove('hidden');
+        }
+
+        // Συνάρτηση για μετάβαση στην επόμενη ερώτηση
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        // Συνάρτηση για εμφάνιση αποτελεσμάτων
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            finalScoreDisplay.textContent = `${score} / ${quizData.length}`;
+            
+            // Προσθήκη μηνύματος με βάση τη βαθμολογία
+            if (score === quizData.length) {
+                resultMessage.innerHTML = `<p class="text-lg md:text-xl lg:text-2xl font-bold text-yellow-600">Είσαι ένας σούπερ Αρχαιολόγος! Γνωρίζεις τα πάντα για την Ιστορία!</p>
+                                          <i class="fas fa-crown text-4xl md:text-5xl lg:text-6xl text-yellow-500 mt-2 md:mt-3 lg:mt-4"></i>`;
+                finalScoreDisplay.classList.add('text-yellow-500');
+            } else if (score >= quizData.length / 2) {
+                resultMessage.innerHTML = `<p class="text-lg md:text-xl lg:text-2xl font-bold text-green-600">Πολύ καλά! Έμαθες πολλά και είσαι έτοιμος για ανασκαφές!</p>
+                                          <i class="fas fa-shovel text-4xl md:text-5xl lg:text-6xl text-green-500 mt-2 md:mt-3 lg:mt-4"></i>`;
+                finalScoreDisplay.classList.add('text-green-500');
+            } else {
+                resultMessage.innerHTML = `<p class="text-lg md:text-xl lg:text-2xl font-bold text-red-600">Καλή προσπάθεια! Με λίγη εξάσκηση ακόμα θα γίνεις ο καλύτερος!</p>
+                                          <i class="fas fa-book text-4xl md:text-5xl lg:text-6xl text-red-500 mt-2 md:mt-3 lg:mt-4"></i>`;
+                finalScoreDisplay.classList.add('text-red-500');
+            }
+        }
+
+        // Βοηθητική συνάρτηση για ανακάτεμα πίνακα (Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Εκκίνηση του παιχνιδιού μόλις φορτώσει η σελίδα
+        window.onload = function() {
+            // Εμφάνιση της εισαγωγικής οθόνης
+            introScreen.classList.remove('hidden');
+        }
+
+    </script>
+</body>
+</html>
