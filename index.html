@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ο Αρχαιολόγος & η Ιστορία</title>
-    <!-- Φόρτωση Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Φόρτωση Font Awesome για εικονίδια -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
-        /* Προσαρμοσμένα στυλ για παιδική αισθητική */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4f8;
@@ -54,6 +51,26 @@
         .disabled {
             pointer-events: none;
         }
+        .header-container {
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 0;
+            position: relative;
+            width: 100%;
+        }
+        #municipality-text {
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #1e40af;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
@@ -62,7 +79,6 @@
             animation: bounce 0.5s;
         }
         
-        /* Προσαρμογές για landscape orientation */
         @media (orientation: landscape) and (max-height: 600px) {
             .quiz-container {
                 min-height: 95vh;
@@ -72,11 +88,16 @@
             .quiz-card {
                 padding: 1rem !important;
             }
-            header {
-                margin-bottom: 0.5rem !important;
+            .header-container {
+                min-height: 100px;
+                padding: 0.5rem 0;
             }
             header h1 {
                 font-size: 1.75rem !important;
+            }
+            #municipality-text {
+                font-size: 1.3rem;
+                margin-bottom: 0.5rem;
             }
             .question-box {
                 min-height: 70px;
@@ -99,7 +120,6 @@
             }
         }
         
-        /* Προσαρμογές για μικρές οθόνες σε portrait */
         @media (max-width: 480px) and (orientation: portrait) {
             .quiz-container {
                 max-width: 98%;
@@ -107,8 +127,16 @@
             .quiz-card {
                 padding: 0.75rem !important;
             }
+            .header-container {
+                min-height: 120px;
+                padding: 0.5rem 0;
+            }
             header h1 {
                 font-size: 1.75rem !important;
+            }
+            #municipality-text {
+                font-size: 1.3rem;
+                margin-bottom: 0.5rem;
             }
             .question-box {
                 font-size: 1.25rem !important;
@@ -120,20 +148,6 @@
                 padding: 0.75rem !important;
             }
         }
-        
-        /* Προσαρμογές για tablets */
-        @media (min-width: 768px) and (max-width: 1024px) {
-            .quiz-container {
-                max-width: 85%;
-            }
-        }
-        
-        /* Προσαρμογές για μεγάλες οθόνες */
-        @media (min-width: 1200px) {
-            .quiz-container {
-                max-width: 70%;
-            }
-        }
     </style>
 </head>
 <body class="p-2 md:p-4 lg:p-8">
@@ -141,11 +155,14 @@
     <div id="quiz-app" class="quiz-container flex flex-col items-center justify-center py-2 md:py-4 lg:py-10">
 
         <!-- Τίτλος & Εισαγωγή -->
-        <header class="text-center mb-4 md:mb-6 lg:mb-8">
-            <h1 class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-blue-600 mb-1 md:mb-2">
-                <i class="fas fa-book-open text-yellow-500 mr-2 md:mr-3"></i>
-                Το Παιχνίδι του Αρχαιολόγου
-            </h1>
+        <header class="text-center mb-4 md:mb-6 lg:mb-8 w-full">
+            <div class="header-container">
+                <p id="municipality-text">ΔΗΜΟΣ ΦΑΡΣΑΛΩΝ 2025</p>
+                <h1 class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-blue-600 mb-1 md:mb-2">
+                    <i class="fas fa-book-open text-yellow-500 mr-2 md:mr-3"></i>
+                    Το Παιχνίδι του Αρχαιολόγου
+                </h1>
+            </div>
         </header>
 
         <!-- Κεντρική Κάρτα Παιχνιδιού -->
@@ -196,7 +213,20 @@
                 <p class="text-lg md:text-xl lg:text-2xl text-gray-700 mb-4 md:mb-6">Η τελική σου βαθμολογία είναι:</p>
                 <p class="text-4xl md:text-5xl lg:text-6xl font-black text-blue-600 mb-4 md:mb-6 lg:mb-8" id="final-score"></p>
                 <div id="result-message" class="mb-4 md:mb-6 lg:mb-8 text-base md:text-lg lg:text-xl text-gray-700"></div>
-                <button onclick="startGame()" class="py-3 md:py-4 px-6 md:px-8 text-base md:text-xl font-bold rounded-xl text-white bg-blue-500 hover:bg-blue-600 shadow-lg">
+                
+                <!-- Νέα Κουμπιά Εκπαιδευτικού Περιεχομένου -->
+                <div class="additional-buttons mt-6 space-y-4">
+                    <a href="https://conchr.github.io/Achilles-for-Kids/" 
+                       class="edu-button bg-purple-500 hover:bg-purple-600 text-white py-3 px-6 rounded-xl text-lg font-bold shadow-lg transition duration-300 block text-center">
+                       🏛️ Μάθε για τον Αχιλλέα και την Ακρόπολη
+                    </a>
+                    <a href="https://conchr.github.io/Kastro-Kallitheas-for-Kids/" 
+                       class="edu-button bg-indigo-500 hover:bg-indigo-600 text-white py-3 px-6 rounded-xl text-lg font-bold shadow-lg transition duration-300 block text-center">
+                       🏰 Μάθε για το Κάστρο Καλλιθέας
+                    </a>
+                </div>
+                
+                <button onclick="startGame()" class="mt-6 py-3 md:py-4 px-6 md:px-8 text-base md:text-xl font-bold rounded-xl text-white bg-blue-500 hover:bg-blue-600 shadow-lg">
                     Παίξε Ξανά <i class="fas fa-redo ml-1 md:ml-2"></i>
                 </button>
             </div>
